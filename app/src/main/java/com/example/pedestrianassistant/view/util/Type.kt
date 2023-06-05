@@ -1,4 +1,4 @@
-package com.example.pedestrianassistant.ui.theme
+package com.example.pedestrianassistant.view.util
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

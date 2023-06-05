@@ -46,24 +46,18 @@ class MainActivity : ComponentActivity(),ObjectDetectorHelper.DetectorListener {
 
     private lateinit var objectDetectorHelper: ObjectDetectorHelper
     private lateinit var bitmapBuffer: Bitmap
-    private var preview: Preview? = null
-    private var imageAnalyzer: ImageAnalysis? = null
-    private var camera: Camera? = null
-    private var cameraProvider: ProcessCameraProvider? = null
 
     private var detectedObject = mutableStateOf("Nothing")
-    /** Blocking camera operations are performed using this executor */
     private var cameraExecutor: ExecutorService  = Executors.newSingleThreadExecutor()
 
     companion object {
         private const val REQUEST_CAMERA_PERMISSION = 1001
-        private const val TAG = "CameraX"
     }
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("TFLITE", "TensorFlow Lite initialization successful")
+        Log.d("TFLITE", "TensorFlow Lite initialization was successful")
         objectDetectorHelper =
             ObjectDetectorHelper(context = applicationContext, objectDetectorListener = this)
         if (allPermissionsGranted()) {
@@ -123,12 +117,12 @@ class MainActivity : ComponentActivity(),ObjectDetectorHelper.DetectorListener {
         val cameraProviderFuture = remember { getInstance(localContext) }
         val lifecycleOwner = LocalLifecycleOwner.current
 
-        val observer =
-            remember(previewView, cameraProviderFuture) {
-                CameraXObserver(previewView, cameraProviderFuture)
-            }
+        val observer = remember(previewView, cameraProviderFuture) { CameraXObserver(previewView, cameraProviderFuture) }
 
-        AndroidView({ previewView }, Modifier.fillMaxSize()) {
+        AndroidView(
+            factory = { previewView },
+            modifier = Modifier.fillMaxSize())
+        {
             lifecycleOwner.lifecycle.addObserver(observer)
         }
     }
@@ -139,36 +133,21 @@ class MainActivity : ComponentActivity(),ObjectDetectorHelper.DetectorListener {
         cameraProvider: ProcessCameraProvider
     ) {
 
-        val cameraSelector =
-            CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
+        val cameraSelector = CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
 
         cameraProvider.unbindAll()
 
-        val preview =
-            Preview.Builder().build().apply { setSurfaceProvider(previewView.surfaceProvider) }
+        val preview = Preview.Builder().build().apply { setSurfaceProvider(previewView.surfaceProvider) }
 
         val imageAnalyzer =
             ImageAnalysis.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                //
-                // .setTargetRotation(fragmentCameraBinding.viewFinder.display.rotation)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .setOutputImageFormat(OUTPUT_IMAGE_FORMAT_RGBA_8888)
                 .build()
-                // The analyzer can then be assigned to the instance
                 .also {
                     it.setAnalyzer(cameraExecutor) { image ->
-                        if (!::bitmapBuffer.isInitialized) {
-                            // The image rotation and RGB image buffer are initialized only once
-                            // the analyzer has started running
-                            bitmapBuffer =
-                                Bitmap.createBitmap(
-                                    image.width,
-                                    image.height,
-                                    Bitmap.Config.ARGB_8888
-                                )
-                        }
-
+                        if (!::bitmapBuffer.isInitialized) { bitmapBuffer = Bitmap.createBitmap(image.width, image.height, Bitmap.Config.ARGB_8888) }
                         detectObjects(image)
                     }
                 }
@@ -224,7 +203,7 @@ class MainActivity : ComponentActivity(),ObjectDetectorHelper.DetectorListener {
         imageHeight: Int,
         imageWidth: Int
     ) {
-        detectedObject.value = if (results?.isNotEmpty() == true) results.first().categories.first().label.toString() else "Notghing"
+        detectedObject.value = if (results?.isNotEmpty() == true) results.first().categories.first().label.toString() else "Nothing"
         Log.d("RESULTS", results.toString())
     }
 }

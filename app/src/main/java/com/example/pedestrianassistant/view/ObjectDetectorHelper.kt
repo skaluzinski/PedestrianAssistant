@@ -110,11 +110,9 @@ class ObjectDetectorHelper(
             Log.e(TAG, "detect: TfLiteVision is not initialized yet")
             return
         }
-
         if (objectDetector == null) {
             setupObjectDetector()
         }
-
         // Inference time is the difference between the system time at the start and finish of the
         // process
         var inferenceTime = SystemClock.uptimeMillis()
@@ -124,12 +122,9 @@ class ObjectDetectorHelper(
         //            lite_support#imageprocessor_architecture
         val imageProcessor = ImageProcessor
             .Builder()
-//            .add(ResizeOp(32,32,ResizeOp.ResizeMethod.BILINEAR))
             .add(Rot90Op(-imageRotation / 90))
-//            .add(NormalizeOp(127.5f,127.5f))
             .build()
 
-        // Preprocess the image and convert it into a TensorImage for detection.
         val tensorImage = imageProcessor.process(TensorImage.fromBitmap(image))
 
         val results = objectDetector?.detect(tensorImage)

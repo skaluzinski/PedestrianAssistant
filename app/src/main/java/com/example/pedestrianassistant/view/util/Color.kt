@@ -1,4 +1,4 @@
-package com.example.pedestrianassistant.ui.theme
+package com.example.pedestrianassistant.view.util
 
 import androidx.compose.ui.graphics.Color
 
