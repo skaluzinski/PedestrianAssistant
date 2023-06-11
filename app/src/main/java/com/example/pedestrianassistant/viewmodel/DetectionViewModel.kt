@@ -20,10 +20,6 @@ class DetectionViewModel @Inject constructor() : ViewModel(), ObjectDetectorHelp
     lateinit var objectDetectorHelper: ObjectDetectorHelper
     var bitmapBuffer: Bitmap? = null
 
-    override fun onInitialized() {
-
-    }
-
     override fun onError(error: String) {
         Log.d("RESULTS-ERROR",error)
     }

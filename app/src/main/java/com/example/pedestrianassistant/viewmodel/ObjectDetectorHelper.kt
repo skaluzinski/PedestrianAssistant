@@ -32,7 +32,6 @@ class ObjectDetectorHelper(
             if (gpuAvailable) { optionsBuilder.setEnableGpuDelegateSupport(true) }
             TfLiteVision.initialize(context, optionsBuilder.build())
         }
-            .addOnSuccessListener { objectDetectorListener.onInitialized() }
             .addOnFailureListener{ objectDetectorListener.onError("TfLiteVision failed to initialize: ${it.message}")
         }
     }
@@ -87,7 +86,6 @@ class ObjectDetectorHelper(
     }
 
     interface DetectorListener {
-        fun onInitialized()
         fun onError(error: String)
         fun onResults(
             results: MutableList<Detection>?,
